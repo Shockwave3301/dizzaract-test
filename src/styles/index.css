@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: "Geist Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-chat-surface: var(--chat-surface);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(0.182 0 0);
+  --foreground: oklch(0.985 0 0);
+  --chat-surface: oklch(0.213 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.269 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.579 0.228 273);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.715 0 0);
+  --accent: oklch(0.371 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.182 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    /* Scale the rem-anchored UI up on large/high-DPI displays. Stays at 16px on
+       laptops, climbs toward 21px on 2K/4K so text and controls don't feel tiny. */
+    font-size: clamp(16px, 0.9rem + 0.35vw, 21px);
+  }
+}
+
+/* Thinking indicator — a 6x3 LED pixel-matrix pulse. JS (thinking-indicator.tsx)
+   steps a frame index; each cell paints its level color, and a short
+   transition crossfades between frames for a smooth left -> right sweep. */
+.thinking-matrix {
+  --scale: 1;
+  --bg: oklch(0.18 0 0);
+  --cell-off: oklch(0.3 0 0);
+  /* Level 3 (vivid) is the app's --primary; levels 1, 2 and 4 are derived from
+     it at runtime, holding the hue. The ramp follows the design's purple scale
+     (l1 = 950, l2 = 700, l3 = 500, l4 = 300): lightness climbs from a deep l1 to
+     a pale l4, with chroma fullest in the middle and tapering at both ends. */
+  --l1: oklch(from var(--primary) 0.291 calc(c * 0.56) h);
+  --l2: oklch(from var(--primary) 0.496 c h);
+  --l3: var(--primary);
+  --l4: oklch(from var(--primary) 0.827 calc(c * 0.45) h);
+
+  display: grid;
+  grid-template-columns: repeat(6, calc(5px * var(--scale)));
+  grid-auto-rows: calc(5px * var(--scale));
+  gap: calc(1px * var(--scale));
+  padding: calc(1px * var(--scale));
+  width: max-content;
+  background: var(--bg);
+}
+
+.thinking-cell {
+  background-color: var(--cell-off);
+  transition: background-color 200ms linear;
+}
+
+.thinking-cell[data-level="1"] {
+  background-color: var(--l1);
+}
+.thinking-cell[data-level="2"] {
+  background-color: var(--l2);
+}
+.thinking-cell[data-level="3"] {
+  background-color: var(--l3);
+}
+.thinking-cell[data-level="4"] {
+  background-color: var(--l4);
+}
+
+[data-model="best"] .thinking-matrix {
+  --primary: oklch(62.7% 0.265 303.9);
+}
+[data-model="fastest"] .thinking-matrix {
+  --primary: oklch(79.5% 0.184 86.047);
+}
+[data-model="creative"] .thinking-matrix {
+  --primary: oklch(65.6% 0.241 354.308);
+}
+[data-model="code"] .thinking-matrix {
+  --primary: oklch(71.5% 0.143 215.221);
+}
+
+/* Thinking text shimmer — a bright band sweeps left -> right across the muted
+   text. An oversized gradient is clipped to the glyphs; the band is the brighter
+   --foreground riding over the --muted-foreground base, moved by background-position. */
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 40%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 60%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: text-shimmer 1.5s linear infinite;
+}
+
+@keyframes text-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
